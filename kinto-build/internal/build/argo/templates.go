@@ -109,7 +109,7 @@ func genWorkflowUpdateStatusTemplate(envId, blockName, releaseId, kintoCoreHost 
 }
 
 func genMainWorkflowTemplate() v1alpha1.Template {
-	return v1alpha1.Template{
+	template := v1alpha1.Template{
 		Name: utils.WorkflowMainWorkflowTemplateName,
 		Container: &corev1.Container{
 			Name:            "main",
@@ -117,30 +117,56 @@ func genMainWorkflowTemplate() v1alpha1.Template {
 			ImagePullPolicy: getImagePullPolicy(config.ArgoWorkflowImagePullPolicy),
 			WorkingDir:      workflowWorkingDir,
 			VolumeMounts: []corev1.VolumeMount{
-				{
-					Name:      workflowVolumeName,
-					MountPath: workflowWorkingDir,
-				},
 				// https://github.com/GoogleContainerTools/kaniko/blob/master/examples/pod.yaml
 				{
 					Name:      config.ArgoWorkflowDockerSecret,
 					MountPath: "/kaniko/.docker",
 				},
 			},
-			Resources: corev1.ResourceRequirements{
-				Requests: corev1.ResourceList{
-					corev1.ResourceCPU:              resource.MustParse("500m"),
-					corev1.ResourceMemory:           resource.MustParse("2Gi"),
-					corev1.ResourceEphemeralStorage: resource.MustParse(config.ArgoWorkflowVolumeSize),
-				},
-				Limits: corev1.ResourceList{
-					corev1.ResourceCPU:              resource.MustParse(config.ArgoWorkflowCPULimit),
-					corev1.ResourceMemory:           resource.MustParse(config.ArgoWorkflowMemoryLimit),
-					corev1.ResourceEphemeralStorage: resource.MustParse(config.ArgoWorkflowVolumeSize),
-				},
-			},
+			Resources: genWorkflowResource(),
 		},
 	}
+
+	if config.ArgoWorkflowVolumeSize != "" {
+		template.Container.VolumeMounts = append(
+			template.Container.VolumeMounts,
+			corev1.VolumeMount{
+				Name:      workflowVolumeName,
+				MountPath: workflowWorkingDir,
+			})
+	}
+
+	return template
+}
+
+func genWorkflowResource() corev1.ResourceRequirements {
+	resources := corev1.ResourceRequirements{
+		Requests: corev1.ResourceList{},
+		Limits:   corev1.ResourceList{},
+	}
+
+	if config.ArgoWorkflowVolumeSize != "" {
+		resources.Requests[corev1.ResourceEphemeralStorage] = resource.MustParse(config.ArgoWorkflowVolumeSize)
+		resources.Limits[corev1.ResourceEphemeralStorage] = resource.MustParse(config.ArgoWorkflowVolumeSize)
+	}
+
+	if config.ArgoWorkflowMemoryRequest != "" {
+		resources.Requests[corev1.ResourceMemory] = resource.MustParse(config.ArgoWorkflowMemoryRequest)
+	}
+
+	if config.ArgoWorkflowCPURequest != "" {
+		resources.Requests[corev1.ResourceCPU] = resource.MustParse(config.ArgoWorkflowCPURequest)
+	}
+
+	if config.ArgoWorkflowMemoryLimit != "" {
+		resources.Limits[corev1.ResourceMemory] = resource.MustParse(config.ArgoWorkflowMemoryLimit)
+	}
+
+	if config.ArgoWorkflowCPULimit != "" {
+		resources.Limits[corev1.ResourceCPU] = resource.MustParse(config.ArgoWorkflowCPULimit)
+	}
+
+	return resources
 }
 
 func genBuildAndDeployWorkflow(

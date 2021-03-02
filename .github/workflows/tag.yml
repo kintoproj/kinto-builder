@@ -19,8 +19,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Tag Image
+      - name: Tag Builder
         uses: kintoproj/kinto-github-actions/tag-docker-image@v1.1
         with:
           from_tag: kintohub/kinto-builder:${{ github.sha }}
           to_tag: kintohub/kinto-builder:${{ env.RELEASE_VERSION }}
+      - name: Tag Cli
+        uses: kintoproj/kinto-github-actions/tag-docker-image@v1.1
+        with:
+          from_tag: kintohub/kinto-workflow-cli:${{ github.sha }}
+          to_tag: kintohub/kinto-workflow-cli:${{ env.RELEASE_VERSION }}
+      - name: Tag Workflow
+        uses: kintoproj/kinto-github-actions/tag-docker-image@v1.1
+        with:
+          from_tag: kintohub/kinto-workflow-main:${{ github.sha }}
+          to_tag: kintohub/kinto-workflow-main:${{ env.RELEASE_VERSION }}

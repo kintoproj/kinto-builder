@@ -54,6 +54,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set env
+        run: echo "TAGS=kintohub/kinto-workflow-cli:${GITHUB_SHA},kintohub/kinto-workflow-cli:latest" >> $GITHUB_ENV
       - name: Build
         id: docker_build
         uses: docker/build-push-action@v2
@@ -61,7 +63,7 @@ jobs:
           context: images/kinto-cli
           file: images/kinto-cli/Dockerfile
           push: true
-          tags: kintohub/kinto-workflow-cli:latest
+          tags: ${{ env.TAGS }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
@@ -84,6 +86,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set env
+        run: echo "TAGS=kintohub/kinto-workflow-main:${GITHUB_SHA},kintohub/kinto-workflow-main:latest" >> $GITHUB_ENV
       - name: Build
         id: docker_build
         uses: docker/build-push-action@v2
@@ -91,7 +95,7 @@ jobs:
           context: images
           file: images/Dockerfile
           push: true
-          tags: kintohub/kinto-workflow-main:latest
+          tags:  ${{ env.TAGS }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

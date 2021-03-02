@@ -22,7 +22,8 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      - name: Set env
+        run: echo "TAGS=kintohub/kinto-builder:${GITHUB_SHA},kintohub/kinto-builder:latest" >> $GITHUB_ENV
       - name: Build
         id: docker_build
         uses: docker/build-push-action@v2
@@ -30,7 +31,7 @@ jobs:
           context: kinto-build
           file: kinto-build/Dockerfile
           push: true
-          tags: kintohub/kinto-builder:latest
+          tags: ${{ env.TAGS }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}

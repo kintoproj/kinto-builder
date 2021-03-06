@@ -37,6 +37,8 @@ var (
 	ArgoWorkflowVolumeSize         string
 	ArgoWorkflowMemoryLimit        string
 	ArgoWorkflowCPULimit           string
+	ArgoWorkflowMemoryRequest      string
+	ArgoWorkflowCPURequest         string
 )
 
 func LoadConfig() {
@@ -58,7 +60,7 @@ func LoadConfig() {
 	ArgoWorkflowTTL = config.GetInt("ARGO_WORKFLOW_TTL_SECONDS", 600)
 	ArgoWorkflowDockerSecret = config.GetStringOrDie("ARGO_WORKFLOW_DOCKER_SECRET")
 	ArgoWorkflowServiceAccount = config.GetStringOrDie("ARGO_WORKFLOW_SERVICE_ACCOUNT")
-	ArgoWorkflowNamespace = config.GetString("ARGO_WORKFLOW_NAMESPACE", "argo")
+	ArgoWorkflowNamespace = config.GetString("ARGO_WORKFLOW_NAMESPACE", "kintohub")
 	ArgoWorkflowMinioHost = config.GetStringOrDie("ARGO_WORKFLOW_MINIO_HOST")
 	ArgoWorkflowMinioAccessKey = config.GetStringOrDie("ARGO_WORKFLOW_MINIO_ACCESS_KEY")
 	ArgoWorkflowMinioSecretKey = config.GetStringOrDie("ARGO_WORKFLOW_MINIO_SECRET_KEY")
@@ -67,7 +69,9 @@ func LoadConfig() {
 	ArgoWorkflowImagePullPolicy = config.GetString("ARGO_WORKFLOW_IMAGE_PULL_POLICY", "IfNotPresent")
 	ArgoWorkflowMainImage = config.GetStringOrDie("ARGO_WORKFLOW_MAIN_IMAGE")
 	ArgoWorkflowCliImage = config.GetStringOrDie("ARGO_WORKFLOW_CLI_IMAGE")
-	ArgoWorkflowVolumeSize = config.GetString("ARGO_WORKFLOW_VOLUME_SIZE", "1Gi")
-	ArgoWorkflowMemoryLimit = config.GetString("ARGO_WORKFLOW_MEMORY_LIMIT", "2Gi")
-	ArgoWorkflowCPULimit = config.GetString("ARGO_WORKFLOW_CPU_LIMIT", "1")
+	ArgoWorkflowVolumeSize = os.Getenv("ARGO_WORKFLOW_VOLUME_SIZE")
+	ArgoWorkflowMemoryLimit = os.Getenv("ARGO_WORKFLOW_MEMORY_LIMIT")
+	ArgoWorkflowCPULimit = os.Getenv("ARGO_WORKFLOW_CPU_LIMIT")
+	ArgoWorkflowMemoryRequest = os.Getenv("ARGO_WORKFLOW_MEMORY_REQUEST")
+	ArgoWorkflowCPURequest = os.Getenv("ARGO_WORKFLOW_CPU_REQUEST")
 }
